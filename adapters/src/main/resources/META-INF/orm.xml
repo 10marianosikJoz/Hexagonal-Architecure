@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<entity-mappings xmlns="http://java.sun.com/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm
+   http://java.sun.com/xml/ns/persistence/orm_1_0.xsd"
+                 version="1.0">
+
+    <description>XML Mapping file</description>
+    <entity class="com.example.clean_architecture.course.vo.CourseSnapshot" access="FIELD">
+        <table name="course"/>
+        <attributes>
+            <embedded-id name="courseId">
+                <attribute-override name="value">
+                    <column name="id"/>
+                </attribute-override>
+            </embedded-id>
+            <embedded name="name">
+                <attribute-override name="value">
+                    <column name="name"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="description">
+                <attribute-override name="value">
+                    <column name="description"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="startDate">
+                <attribute-override name="value">
+                    <column name="startDate"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="endDate">
+                <attribute-override name="value">
+                    <column name="endDate"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="participantLimit">
+                <attribute-override name="value">
+                    <column name="participantLimit"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="participantNumber">
+                <attribute-override name="value">
+                    <column name="participantNumber"/>
+                </attribute-override>
+            </embedded>
+            <basic name="status"/>
+            <property name="status" column="status">
+                <type name="org.hibernate.type.EnumType">
+                    <param name="enumClass">com.example.clean_architecture.course.Status</param>
+                    <param name="useNamed">true</param>
+                </type>
+            </property>
+            <embedded name="teacherSourceId">
+                <attribute-override name="teacherSourceId">
+                    <column name="teacherSourceId"/>
+                </attribute-override>
+            </embedded>
+            <many-to-many name="students" fetch="EAGER" target-entity="com.example.clean_architecture.student.vo.StudentSnapshot">
+                <join-table name="student_course">
+                    <join-columns>
+                    <join-column name="course_id"/>
+                        <inverse-join-columns>
+                            <join-column name="student_id"/>
+                        </inverse-join-columns>
+                    </join-columns>
+                </join-table>
+            </many-to-many>
+        </attributes>
+    </entity>
+
+    <embeddable class="com.example.clean_architecture.course.vo.CourseId" access="FIELD">
+        <attributes>
+            <basic name="value">
+                <column nullable="false"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.course.vo.Name" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.course.vo.Description" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.course.vo.StartDate" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.course.vo.EndDate" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.course.vo.ParticipantLimit" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.course.vo.ParticipantNumber" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <entity class="com.example.clean_architecture.teacher.vo.TeacherSnapshot" access="FIELD">
+        <table name="teacher"/>
+        <attributes>
+            <embedded-id name="teacherId">
+                <attribute-override name="value">
+                    <column name="id"/>
+                </attribute-override>
+            </embedded-id>
+            <embedded name="firstName">
+                <attribute-override name="value">
+                    <column name="name"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="lastName">
+                <attribute-override name="value">
+                    <column name="surname"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="degree">
+                <attribute-override name="value">
+                    <column name="degree"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="teacherSourceId">
+                <attribute-override name="value">
+                    <column name="teacherSourceId"/>
+                </attribute-override>
+            </embedded>
+        </attributes>
+    </entity>
+
+    <embeddable class="com.example.clean_architecture.teacher.vo.TeacherSourceId" access="FIELD">
+        <attributes>
+            <basic name="value">
+                <column nullable="true"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.teacher.vo.TeacherId" access="FIELD">
+        <attributes>
+            <basic name="value">
+                <column nullable="false"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.teacher.vo.Firstname" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.teacher.vo.Lastname" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.teacher.vo.Degree" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <entity class="com.example.clean_architecture.student.vo.StudentSnapshot" access="FIELD">
+        <table name="student"/>
+        <attributes>
+            <embedded-id name="studentId">
+                <attribute-override name="value">
+                    <column name="id"/>
+                </attribute-override>
+            </embedded-id>
+            <embedded name="firstName">
+                <attribute-override name="value">
+                    <column name="name"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="lastName">
+                <attribute-override name="value">
+                    <column name="surname"/>
+                </attribute-override>
+            </embedded>
+            <embedded name="email">
+                <attribute-override name="value">
+                    <column name="email"/>
+                </attribute-override>
+            </embedded>
+            <property name="status" column="status">
+                <type name="org.hibernate.type.EnumType">
+                    <param name="enumClass">com.example.clean_architecture.student.Status</param>
+                    <param name="useNamed">true</param>
+                </type>
+            </property>
+            <many-to-many name="courses" fetch="EAGER" mapped-by="students" target-entity="com.example.clean_architecture.course.vo.CourseSnapshot"/>
+        </attributes>
+    </entity>
+
+    <embeddable class="com.example.clean_architecture.student.vo.StudentId" access="FIELD">
+        <attributes>
+            <basic name="value">
+                <column nullable="false"/>
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.student.vo.Firstname" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.student.vo.Lastname" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+
+    <embeddable class="com.example.clean_architecture.student.vo.Email" access="FIELD">
+        <attributes>
+            <basic name="value">
+            </basic>
+        </attributes>
+    </embeddable>
+</entity-mappings>
