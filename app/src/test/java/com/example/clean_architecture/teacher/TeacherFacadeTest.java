@@ -1,87 +1,71 @@
 package com.example.clean_architecture.teacher;
 
-import com.example.clean_architecture.teacher.dto.CommandTeacherDto;
 import com.example.clean_architecture.teacher.vo.Degree;
 import com.example.clean_architecture.teacher.vo.Firstname;
 import com.example.clean_architecture.teacher.vo.Lastname;
 import com.example.clean_architecture.teacher.vo.TeacherId;
-import com.example.clean_architecture.teacher.vo.TeacherSourceId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
-@ExtendWith(MockitoExtension.class)
 class TeacherFacadeTest {
 
-    @Mock
-    TeacherRepository teacherRepository;
+    private final InMemoryTeacherRepository inMemoryTeacherRepository = new InMemoryTeacherRepository();
+    private final TeacherFacade teacherFacade = new TeacherFacade(inMemoryTeacherRepository, new TeacherFactory());
 
-    @InjectMocks
-    TeacherFacade teacherFacade;
+    @BeforeEach
+    void setUp() {
+        inMemoryTeacherRepository.truncate();
+    }
 
     @Test
     void shouldDeleteGivenTeacherFromDatabase() {
-        var teacher = prepareTeacherData();
-        given(teacherRepository.findByTeacherIdValue(1L)).willReturn(Optional.of(teacher));
-        doNothing().when(teacherRepository).deleteByTeacherIdValue(1L);
+        //given
+        var initialTeacher = prepareTeacherData();
+        inMemoryTeacherRepository.save(initialTeacher);
 
+        //when
         teacherFacade.deleteTeacherById(1L);
-        
-        verify(teacherRepository, times(1)).deleteByTeacherIdValue(1L);
+
+        //then
+        assertThat(inMemoryTeacherRepository.findByTeacherId(1L)).isEmpty();
     }
 
     @Test
     void shouldSaveNewTeacherToDatabase() {
-        var teacher = prepareTeacherData();
-        var commandTeacherDto = teacherFacade.toTeacherDto(teacher);
-        given(teacherRepository.findByTeacherIdValue(any())).willReturn(Optional.of(teacher));
-        given(teacherRepository.save(teacher)).willReturn(teacher);
+        //given
+        var intialTeacher = prepareTeacherData();
+        var commandTeacherDto = teacherFacade.toTeacherDto(intialTeacher);
 
+        //when
         var persisted = teacherFacade.addNewTeacher(commandTeacherDto);
 
-        assertThat(persisted.getFirstName().getValue()).isEqualTo("John");
+        //then
+        assertThat(inMemoryTeacherRepository.findByTeacherId(persisted.teacherId().teacherId())).isPresent();
     }
 
     @Test
     void shouldUpdateGivenTeacher() {
-        var teacher = prepareTeacherData();
-        var commandTeacherDto = prepareTeacherDtoData();
-        var teacherId = teacher.getSnapshot().getTeacherId().getValue();
-        given(teacherRepository.findByTeacherIdValue(teacherId)).willReturn(Optional.of(teacher));
-        given(teacherRepository.save(teacher)).willReturn(teacher);
+        //given
+        var initialTeacher = prepareTeacherData();
+        var commandTeacherDto = teacherFacade.toTeacherDto(initialTeacher);
+        var teacherId = initialTeacher.getSnapshot().getTeacherId().teacherId();
+        inMemoryTeacherRepository.save(initialTeacher);
 
-        var updated = teacherFacade.updateTeacher(teacherId, commandTeacherDto);
+        //when
+        var updatedTeacher = teacherFacade.updateTeacher(teacherId, commandTeacherDto);
 
-        assertThat(updated.getFirstName().getValue()).isEqualTo("John");
+        //then
+        assertThat(inMemoryTeacherRepository.findByTeacherId(updatedTeacher.teacherId().teacherId()).get().getSnapshot().getFirstName().value()).isEqualTo("John");
     }
 
     private Teacher prepareTeacherData() {
         return Teacher.builder()
-                      .withFirstname(new Firstname("John"))
-                      .withLastname(new Lastname("Murphy"))
-                      .withDegree(new Degree("Master degree"))
-                      .withTeacherSourceId(new TeacherSourceId("1"))
-                      .withTeacherId(new TeacherId(1L))
-                      .build();
-    }
-
-    private CommandTeacherDto prepareTeacherDtoData() {
-        return CommandTeacherDto.builder()
-                                .withFirstname(new Firstname("John"))
-                                .withLastname(new Lastname("Murphy"))
-                                .withDegree(new Degree("Master degree"))
-                                .withTeacherSourceId(new TeacherSourceId("1"))
-                                .build();
+                .withTeacherId(new TeacherId(1L))
+                .withFirstname(new Firstname("John"))
+                .withLastname(new Lastname("Murphy"))
+                .withDegree(new Degree("Master degree"))
+                .build();
     }
 }

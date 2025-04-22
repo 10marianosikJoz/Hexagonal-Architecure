@@ -25,7 +25,7 @@ class TeacherController {
 
     @GetMapping("/{teacherId}")
     ResponseEntity<QueryTeacherDto> getTeacherById(@PathVariable Long teacherId) {
-        return teacherQueryRepository.findDtoByTeacherIdValue(teacherId)
+        return teacherQueryRepository.findDtoByTeacherId(teacherId)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> BusinessTeacherException.notFound("Teacher with id: " + teacherId + " not found"));
     }
@@ -33,24 +33,27 @@ class TeacherController {
     @DeleteMapping("/{teacherId}")
     ResponseEntity<CommandTeacherDto> deleteTeacherById(@PathVariable Long teacherId) {
         teacherFacade.deleteTeacherById(teacherId);
+
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     List<QueryTeacherDto> getAllTeachers() {
-        return teacherQueryRepository.findAllBy();
+        return teacherQueryRepository.findAll();
     }
 
     @PostMapping
     ResponseEntity<?> addNewTeacher(@RequestBody CommandTeacherDto teacher) {
         teacherFacade.addNewTeacher(teacher);
         var persisted = QueryTeacherDto.restoreFromCommandDto(teacher);
-        return ResponseEntity.created(URI.create("/" + teacher.getTeacherId())).body(persisted);
+
+        return ResponseEntity.created(URI.create("/" + teacher.teacherId())).body(persisted);
     }
 
     @PutMapping("/{teacherId}")
     ResponseEntity<CommandTeacherDto> updateTeacher(@PathVariable Long teacherId, @RequestBody CommandTeacherDto teacherDto) {
         teacherFacade.updateTeacher(teacherId, teacherDto);
+
         return ResponseEntity.noContent().build();
     }
 }

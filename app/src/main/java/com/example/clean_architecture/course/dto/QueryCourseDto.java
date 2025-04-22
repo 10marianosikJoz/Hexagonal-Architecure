@@ -9,49 +9,48 @@ import com.example.clean_architecture.course.vo.ParticipantLimit;
 import com.example.clean_architecture.course.vo.ParticipantNumber;
 import com.example.clean_architecture.course.vo.StartDate;
 import com.example.clean_architecture.student.vo.StudentSnapshot;
-import com.example.clean_architecture.teacher.vo.TeacherSourceId;
+import com.example.clean_architecture.teacher.vo.TeacherId;
 
-import java.util.HashSet;
 import java.util.Set;
 
-public class QueryCourseDto {
+public record QueryCourseDto(CourseId courseId,
+                             Name name,
+                             Description description,
+                             StartDate startDate,
+                             EndDate endDate,
+                             ParticipantLimit participantLimit,
+                             ParticipantNumber participantNumber,
+                             Status status,
+                             TeacherId teacherId,
+                             Set<StudentSnapshot> students) {
 
     static public QueryCourseDtoBuilder builder() {
         return new QueryCourseDtoBuilder();
     }
 
-    public static QueryCourseDto restoreFromCommandDto(final CommandCourseDto commandCourseDto) {
-        return new QueryCourseDto(commandCourseDto.getCourseId(),
-                commandCourseDto.getName(),
-                commandCourseDto.getDescription(),
-                commandCourseDto.getStartDate(),
-                commandCourseDto.getEndDate(),
-                commandCourseDto.getParticipantLimit(),
-                commandCourseDto.getParticipantsNumber(),
-                commandCourseDto.getStatus(),
-                commandCourseDto.getTeacherSourceId());
+    public static QueryCourseDto restoreFromCommandDto(CommandCourseDto commandCourseDto) {
+        return new QueryCourseDto(commandCourseDto.courseId(),
+                                  commandCourseDto.name(),
+                                  commandCourseDto.description(),
+                                  commandCourseDto.startDate(),
+                                  commandCourseDto.endDate(),
+                                  commandCourseDto.participantLimit(),
+                                  commandCourseDto.participantNumber(),
+                                  commandCourseDto.status(),
+                                  commandCourseDto.teacherId(),
+                                  commandCourseDto.students());
     }
 
-    private final CourseId courseId;
-    private final Name name;
-    private final Description description;
-    private final StartDate startDate;
-    private final EndDate endDate;
-    private final ParticipantLimit participantLimit;
-    private final ParticipantNumber participantNumber;
-    private final Status status;
-    private final TeacherSourceId teacherSourceId;
-    private final Set<StudentSnapshot> students = new HashSet<>();
-
-    public QueryCourseDto(final CourseId courseId,
-                          final Name name,
-                          final Description description,
-                          final StartDate startDate,
-                          final EndDate endDate,
-                          final ParticipantLimit participantLimit,
-                          final ParticipantNumber participantNumber,
-                          final Status status,
-                          final TeacherSourceId teacherSourceId) {
+    public QueryCourseDto(CourseId courseId,
+                          Name name,
+                          Description description,
+                          StartDate startDate,
+                          EndDate endDate,
+                          ParticipantLimit participantLimit,
+                          ParticipantNumber participantNumber,
+                          Status status,
+                          TeacherId teacherId,
+                          Set<StudentSnapshot> students) {
 
         this.courseId = courseId;
         this.name = name;
@@ -61,47 +60,8 @@ public class QueryCourseDto {
         this.participantLimit = participantLimit;
         this.participantNumber = participantNumber;
         this.status = status;
-        this.teacherSourceId = teacherSourceId;
-    }
-
-    public CourseId getCourseId() {
-        return courseId;
-    }
-
-    public Name getName() {
-        return name;
-    }
-
-    public Description getDescription() {
-        return description;
-    }
-
-    public StartDate getStartDate() {
-        return startDate;
-    }
-
-    public EndDate getEndDate() {
-        return endDate;
-    }
-
-    public ParticipantLimit getParticipantLimit() {
-        return participantLimit;
-    }
-
-    public ParticipantNumber getParticipantsNumber() {
-        return participantNumber;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public TeacherSourceId getTeacherSourceId() {
-        return teacherSourceId;
-    }
-
-    public Set<StudentSnapshot> getStudents() {
-        return students;
+        this.teacherId = teacherId;
+        this.students = Set.copyOf(students);
     }
 
     public static class QueryCourseDtoBuilder {
@@ -114,7 +74,8 @@ public class QueryCourseDto {
         private ParticipantLimit participantLimit;
         private ParticipantNumber participantNumber;
         private Status status;
-        private TeacherSourceId teacherSourceId;
+        private TeacherId teacherId;
+        private Set<StudentSnapshot> students;
 
         public QueryCourseDtoBuilder withCourseId(CourseId id) {
             this.id = id;
@@ -156,8 +117,13 @@ public class QueryCourseDto {
             return this;
         }
 
-        public QueryCourseDtoBuilder withTeacher(TeacherSourceId sourceId) {
-            this.teacherSourceId = sourceId;
+        public QueryCourseDtoBuilder withTeacher(TeacherId teacherId) {
+            this.teacherId = teacherId;
+            return this;
+        }
+
+        public QueryCourseDtoBuilder withStudents(Set<StudentSnapshot> students) {
+            this.students = Set.copyOf(students);
             return this;
         }
 
@@ -170,7 +136,8 @@ public class QueryCourseDto {
                                       participantLimit,
                                       participantNumber,
                                       status,
-                                      teacherSourceId);
+                                      teacherId,
+                                      students);
         }
     }
 }

@@ -5,13 +5,15 @@ import com.example.clean_architecture.student.vo.StudentSnapshot;
 
 class StudentFactory {
 
-    Student from(final CommandStudentDto source) {
+    Student from(CommandStudentDto source) {
         return Student.restoreFromSnapshot(StudentSnapshot.builder()
-                                                          .withStudentId(source.getStudentId())
-                                                          .withFirstname(source.getFirstName())
-                                                          .withLastname(source.getLastName())
-                                                          .withEmail(source.getEmail())
-                                                          .withCourses(source.getCourses())
-                                                          .withStatus(source.getStatus()).build());
+                                                          .withStudentId(source.studentId())
+                                                          .withFirstname(source.firstName())
+                                                          .withLastname(source.lastName())
+                                                          .withEmail(source.email())
+                                                          .withCourses(source.courses())
+                                                          .withStatus(source.status())
+                                                          .withCourses(source.courses())
+                                                          .build());
     }
 }

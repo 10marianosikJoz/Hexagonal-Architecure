@@ -1,7 +1,10 @@
-package com.example.clean_architecture.student.vo;
+package com.example.clean_architecture.student.event;
 
 import com.example.clean_architecture.DomainEvent;
 import com.example.clean_architecture.course.vo.CourseSnapshot;
+import com.example.clean_architecture.student.vo.Email;
+import com.example.clean_architecture.student.vo.Firstname;
+import com.example.clean_architecture.student.vo.Lastname;
 
 import java.time.Instant;
 import java.util.Set;

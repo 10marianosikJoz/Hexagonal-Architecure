@@ -6,10 +6,6 @@ public class BusinessCourseException extends CourseException {
         return new CourseNotFoundException(message);
     }
 
-    public static BusinessCourseException notActive(String message) {
-        return new CourseNotActiveException(message);
-    }
-
     public static BusinessCourseException enrollment(String message) {
         return new CourseStudentEnrollmentException(message);
     }

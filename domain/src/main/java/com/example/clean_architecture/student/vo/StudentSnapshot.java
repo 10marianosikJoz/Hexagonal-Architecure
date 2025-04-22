@@ -2,37 +2,33 @@ package com.example.clean_architecture.student.vo;
 
 import com.example.clean_architecture.course.vo.CourseSnapshot;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class StudentSnapshot {
-
-    public static StudentSnapshotBuilder builder() {
-        return new StudentSnapshotBuilder();
-    }
-
     private StudentId studentId;
     private Firstname firstName;
     private Lastname lastName;
     private Email email;
-    private StudentSnapshot.Status status;
-    private final Set<CourseSnapshot> courses = new HashSet<>();
+    private Status status;
+    private Set<CourseSnapshot> courses;
 
-    public StudentSnapshot() {}
-
-    public StudentSnapshot(final StudentId studentId,
-                           final Firstname firstName,
-                           final Lastname lastName,
-                           final Email email,
-                           final Set<CourseSnapshot> courses,
-                           final StudentSnapshot.Status status) {
+    private StudentSnapshot(final StudentId studentId,
+                            final Firstname firstName,
+                            final Lastname lastName,
+                            final Email email,
+                            final Status status,
+                            final Set<CourseSnapshot> courses) {
 
         this.studentId = studentId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.status = status;
-        this.courses.addAll(courses);
+        this.courses = Set.copyOf(courses);
+    }
+
+    public static StudentSnapshotBuilder builder() {
+        return new StudentSnapshotBuilder();
     }
 
     public StudentId getStudentId() {
@@ -51,7 +47,7 @@ public class StudentSnapshot {
         return email;
     }
 
-    public StudentSnapshot.Status getStatus() {
+    public Status getStatus() {
         return status;
     }
 
@@ -70,7 +66,7 @@ public class StudentSnapshot {
         private Email email;
         private StudentSnapshot.Status status;
         private StudentId studentId;
-        private Set<CourseSnapshot> courses = new HashSet<>();
+        private Set<CourseSnapshot> courses;
 
         private StudentSnapshotBuilder() {}
 
@@ -109,8 +105,8 @@ public class StudentSnapshot {
                                        firstName,
                                        lastName,
                                        email,
-                                       courses,
-                                       status);
+                                       status,
+                                       courses);
         }
     }
 }

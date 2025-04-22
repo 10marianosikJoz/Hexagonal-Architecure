@@ -10,30 +10,30 @@ interface SqlTeacherQueryRepository extends TeacherQueryRepository, Repository<T
 
 interface SqlTeacherRepository extends Repository<TeacherSnapshot, TeacherId> {
 
-    Optional<TeacherSnapshot> findByTeacherIdValue(Long teacherId);
+    Optional<TeacherSnapshot> findByTeacherId(Long teacherId);
 
-    void deleteByTeacherIdValue(Long teacherId);
+    void deleteByTeacherId(Long teacherId);
 
     TeacherSnapshot save(TeacherSnapshot entity);
 }
 
 @org.springframework.stereotype.Repository
-class TeacherRepositoryImpl implements TeacherRepository {
+class TeacherJpaRepository implements TeacherRepository {
     private final SqlTeacherRepository sqlTeacherRepository;
 
-    TeacherRepositoryImpl(final SqlTeacherRepository sqlTeacherRepository) {
+    TeacherJpaRepository(final SqlTeacherRepository sqlTeacherRepository) {
         this.sqlTeacherRepository = sqlTeacherRepository;
     }
 
     @Override
-    public Optional<Teacher> findByTeacherIdValue(final Long teacherId) {
-        return sqlTeacherRepository.findByTeacherIdValue(teacherId)
+    public Optional<Teacher> findByTeacherId(final Long teacherId) {
+        return sqlTeacherRepository.findByTeacherId(teacherId)
                                    .map(Teacher::restoreFromSnapshot);
     }
 
     @Override
-    public void deleteByTeacherIdValue(final Long teacherId) {
-        sqlTeacherRepository.deleteByTeacherIdValue(teacherId);
+    public void deleteByTeacherId(final Long teacherId) {
+        sqlTeacherRepository.deleteByTeacherId(teacherId);
     }
 
     @Override

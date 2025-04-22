@@ -7,65 +7,42 @@ import com.example.clean_architecture.student.vo.Firstname;
 import com.example.clean_architecture.student.vo.Lastname;
 import com.example.clean_architecture.student.vo.StudentId;
 
-import java.util.HashSet;
 import java.util.Set;
 
-public class QueryStudentDto {
+public record QueryStudentDto(StudentId studentId,
+                              Firstname firstName,
+                              Lastname lastName,
+                              Email email,
+                              Set<CourseSnapshot> courses,
+                              StudentSnapshot.Status status) {
 
     static public QueryStudentDtoBuilder builder() {
         return new QueryStudentDtoBuilder();
     }
 
-    private final StudentId studentId;
-    private final Firstname firstName;
-    private final Lastname lastName;
-    private final Email email;
-    private final Set<CourseSnapshot> courses = new HashSet<>();
-    private final StudentSnapshot.Status status;
 
-    public QueryStudentDto(final StudentId studentId,
-                           final Firstname firstName,
-                           final Lastname lastName,
-                           final Email email,
-                           final StudentSnapshot.Status status) {
+    public static QueryStudentDto restoreFromCommandDto(CommandStudentDto commandStudentDto) {
+        return new QueryStudentDto(commandStudentDto.studentId(),
+                                   commandStudentDto.firstName(),
+                                   commandStudentDto.lastName(),
+                                   commandStudentDto.email(),
+                                   commandStudentDto.courses(),
+                                   commandStudentDto.status());
+    }
+
+    public QueryStudentDto(StudentId studentId,
+                           Firstname firstName,
+                           Lastname lastName,
+                           Email email,
+                           Set<CourseSnapshot> courses,
+                           StudentSnapshot.Status status) {
 
         this.studentId = studentId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.courses = Set.copyOf(courses);
         this.status = status;
-    }
-
-    public static QueryStudentDto restoreFromCommandDto(CommandStudentDto commandStudentDto) {
-        return new QueryStudentDto(commandStudentDto.getStudentId(),
-                                   commandStudentDto.getFirstName(),
-                                   commandStudentDto.getLastName(),
-                                   commandStudentDto.getEmail(),
-                                   commandStudentDto.getStatus());
-    }
-
-    public StudentId getStudentId() {
-        return studentId;
-    }
-
-    public Firstname getFirstName() {
-        return firstName;
-    }
-
-    public Lastname getLastName() {
-        return lastName;
-    }
-
-    public Email getEmail() {
-        return email;
-    }
-
-    public Set<CourseSnapshot> getCourses() {
-        return courses;
-    }
-
-    public StudentSnapshot.Status getStatus() {
-        return status;
     }
 
     public static class QueryStudentDtoBuilder {
@@ -74,6 +51,7 @@ public class QueryStudentDto {
         private Firstname firstName;
         private Lastname lastName;
         private Email email;
+        private Set<CourseSnapshot> courses;
         private StudentSnapshot.Status status;
 
         public QueryStudentDtoBuilder withStudentId(StudentId id) {
@@ -101,11 +79,17 @@ public class QueryStudentDto {
             return this;
         }
 
+        public QueryStudentDtoBuilder withCourses(Set<CourseSnapshot> courses) {
+            this.courses = Set.copyOf(courses);
+            return this;
+        }
+
         public QueryStudentDto build() {
             return new QueryStudentDto(id,
                                        firstName,
                                        lastName,
                                        email,
+                                       courses,
                                        status);
         }
     }

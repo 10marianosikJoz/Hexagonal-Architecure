@@ -2,10 +2,9 @@ package com.example.clean_architecture.course.vo;
 
 import com.example.clean_architecture.course.Status;
 import com.example.clean_architecture.student.vo.StudentSnapshot;
-import com.example.clean_architecture.teacher.vo.TeacherSourceId;
+import com.example.clean_architecture.teacher.vo.TeacherId;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public class CourseSnapshot {
@@ -14,18 +13,16 @@ public class CourseSnapshot {
         return new CourseSnapshotBuilder();
     }
 
-    private CourseId courseId;
-    private Name name;
-    private Description description;
-    private StartDate startDate;
-    private EndDate endDate;
-    private ParticipantLimit participantLimit;
-    private ParticipantNumber participantNumber;
+    private final CourseId courseId;
+    private final Name name;
+    private final Description description;
+    private final StartDate startDate;
+    private final EndDate endDate;
+    private final ParticipantLimit participantLimit;
+    private final ParticipantNumber participantNumber;
     private Status status;
-    private TeacherSourceId teacherSourceId;
-    private Set<StudentSnapshot> students = new HashSet<>();
-
-    public CourseSnapshot() {}
+    private final TeacherId teacherId;
+    private final Set<StudentSnapshot> students;
 
     public CourseSnapshot(final CourseId courseId,
                           final Name name,
@@ -35,10 +32,10 @@ public class CourseSnapshot {
                           final ParticipantLimit participantLimit,
                           final ParticipantNumber participantNumber,
                           final Status status,
-                          final TeacherSourceId teacherSourceId,
+                          final TeacherId teacherId,
                           final Set<StudentSnapshot> students) {
 
-        this.courseId = Objects.requireNonNull(courseId, "Identifier not provided");
+        this.courseId = courseId;
         this.name = name;
         this.description = description;
         this.startDate = startDate;
@@ -46,7 +43,7 @@ public class CourseSnapshot {
         this.participantLimit = participantLimit;
         this.participantNumber = participantNumber;
         this.status = status;
-        this.teacherSourceId = teacherSourceId;
+        this.teacherId = teacherId;
         this.students = students;
     }
 
@@ -82,37 +79,16 @@ public class CourseSnapshot {
         return status;
     }
 
-    public TeacherSourceId getTeacherSourceId() {
-        return teacherSourceId;
+    public TeacherId getTeacherId() {
+        return teacherId;
     }
 
     public Set<StudentSnapshot> getStudents() {
         return students;
     }
 
-    public void incrementParticipantsNumber() {
-        participantNumber.incrementValue();
-    }
-
-    public void decreaseParticipantsNumber() {
-        participantNumber.decrementValue();
-    }
-
     public void changeToActiveStatus() {
         this.status = Status.ACTIVE;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CourseSnapshot that = (CourseSnapshot) o;
-        return Objects.equals(courseId, that.courseId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(courseId);
     }
 
     public static class CourseSnapshotBuilder {
@@ -125,7 +101,7 @@ public class CourseSnapshot {
         private ParticipantLimit participantLimit;
         private ParticipantNumber participantNumber;
         private Status status;
-        private TeacherSourceId teacherSourceId;
+        private TeacherId teacherId;
         private Set<StudentSnapshot> students = new HashSet<>();
 
         private CourseSnapshotBuilder() {}
@@ -170,8 +146,8 @@ public class CourseSnapshot {
             return this;
         }
 
-        public CourseSnapshotBuilder withTeacherSourceId(TeacherSourceId teacherSourceId) {
-            this.teacherSourceId = teacherSourceId;
+        public CourseSnapshotBuilder withTeacherId(TeacherId teacherId) {
+            this.teacherId = teacherId;
             return this;
         }
 
@@ -189,7 +165,7 @@ public class CourseSnapshot {
                                       participantLimit,
                                       participantNumber,
                                       status,
-                                      teacherSourceId,
+                                      teacherId,
                                       students);
         }
     }

@@ -13,26 +13,27 @@ interface SqlCourseQueryRepository extends CourseQueryRepository, Repository<Cou
 
 interface SqlCourseRepository extends Repository<CourseSnapshot, CourseId> {
 
-    Optional<CourseSnapshot> findByCourseIdValue(Long courseId);
+    Optional<CourseSnapshot> findByCourseIdCourseId(Long courseId);
 
     List<CourseSnapshot> saveAll(Iterable<CourseSnapshot> entities);
 
-    void deleteByCourseIdValue(Long id);
+    void deleteByCourseIdCourseId(Long id);
 
     CourseSnapshot save(CourseSnapshot entity);
 }
 
 @org.springframework.stereotype.Repository
-class CourseRepositoryImpl implements CourseRepository {
+class CourseJpaRepository implements CourseRepository {
+
     private final SqlCourseRepository sqlCourseRepository;
 
-    CourseRepositoryImpl(final SqlCourseRepository sqlCourseRepository) {
+    CourseJpaRepository(final SqlCourseRepository sqlCourseRepository) {
         this.sqlCourseRepository = sqlCourseRepository;
     }
 
     @Override
     public Optional<Course> findById(final Long courseId) {
-        return sqlCourseRepository.findByCourseIdValue(courseId).map(Course::restoreFromSnapshot);
+        return sqlCourseRepository.findByCourseIdCourseId(courseId).map(Course::restoreFromSnapshot);
     }
 
     @Override
@@ -48,7 +49,7 @@ class CourseRepositoryImpl implements CourseRepository {
 
     @Override
     public void deleteById(final Long id) {
-        sqlCourseRepository.deleteByCourseIdValue(id);
+        sqlCourseRepository.deleteByCourseIdCourseId(id);
     }
 
     @Override

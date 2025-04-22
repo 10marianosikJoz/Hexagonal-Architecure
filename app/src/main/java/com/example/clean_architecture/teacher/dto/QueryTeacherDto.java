@@ -4,12 +4,10 @@ import com.example.clean_architecture.teacher.vo.Degree;
 import com.example.clean_architecture.teacher.vo.Firstname;
 import com.example.clean_architecture.teacher.vo.Lastname;
 import com.example.clean_architecture.teacher.vo.TeacherId;
-import com.example.clean_architecture.teacher.vo.TeacherSourceId;
 
 public record QueryTeacherDto(Firstname firstName,
                               Lastname lastName,
                               Degree degree,
-                              TeacherSourceId teacherSourceId,
                               TeacherId teacherId) {
 
     public static QueryTeacherBuilder builder() {
@@ -17,11 +15,10 @@ public record QueryTeacherDto(Firstname firstName,
     }
 
     public static QueryTeacherDto restoreFromCommandDto(CommandTeacherDto commandTeacherDto) {
-        return new QueryTeacherDto(commandTeacherDto.getFirstName(),
-                                   commandTeacherDto.getLastName(),
-                                   commandTeacherDto.getDegree(),
-                                   commandTeacherDto.getTeacherSourceId(),
-                                   commandTeacherDto.getTeacherId());
+        return new QueryTeacherDto(commandTeacherDto.firstName(),
+                                   commandTeacherDto.lastName(),
+                                   commandTeacherDto.degree(),
+                                   commandTeacherDto.teacherId());
     }
 
     public static class QueryTeacherBuilder {
@@ -30,7 +27,6 @@ public record QueryTeacherDto(Firstname firstName,
         private Firstname firstName;
         private Lastname lastName;
         private Degree degree;
-        private TeacherSourceId teacherSourceId;
 
         public QueryTeacherBuilder withTeacherId(TeacherId teacherId) {
             this.teacherId = teacherId;
@@ -52,16 +48,10 @@ public record QueryTeacherDto(Firstname firstName,
             return this;
         }
 
-        public QueryTeacherBuilder withTeacherSourceId(TeacherSourceId sourceId) {
-            this.teacherSourceId = sourceId;
-            return this;
-        }
-
         public QueryTeacherDto build() {
             return new QueryTeacherDto(firstName,
                                        lastName,
                                        degree,
-                                       teacherSourceId,
                                        teacherId);
         }
     }

@@ -1,6 +1,6 @@
 package com.example.clean_architecture.student;
 
-import com.example.clean_architecture.student.vo.StudentEvent;
+import com.example.clean_architecture.student.event.StudentEvent;
 import org.springframework.context.event.EventListener;
 
 class StudentEventListener {

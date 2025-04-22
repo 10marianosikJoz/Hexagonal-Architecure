@@ -5,17 +5,16 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
-@Service
-class TokenService {
+class TokenFacade {
+
     private final JwtConfigurationProperties properties;
 
-    TokenService(JwtConfigurationProperties properties) {
+    TokenFacade(JwtConfigurationProperties properties) {
         this.properties = properties;
     }
 
@@ -24,7 +23,7 @@ class TokenService {
     }
 
     String generateNewToken(UserDetails userDetails) {
-        Map<String, Object> claims = Map.of(); // e.g. roles
+        Map<String, Object> claims = Map.of();
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())

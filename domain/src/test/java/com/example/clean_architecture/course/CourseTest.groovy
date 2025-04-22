@@ -1,7 +1,7 @@
 package com.example.clean_architecture.course
 
 import com.example.clean_architecture.course.exception.BusinessCourseException
-import com.example.clean_architecture.course.vo.CourseEvent
+import com.example.clean_architecture.course.event.CourseEvent
 import com.example.clean_architecture.course.vo.CourseId
 import com.example.clean_architecture.course.vo.CourseSnapshot
 import com.example.clean_architecture.course.vo.Description
@@ -10,7 +10,6 @@ import com.example.clean_architecture.course.vo.Name
 import com.example.clean_architecture.course.vo.ParticipantLimit
 import com.example.clean_architecture.course.vo.ParticipantNumber
 import com.example.clean_architecture.course.vo.StartDate
-import com.example.clean_architecture.student.vo.StudentSnapshot
 import spock.lang.Specification
 
 import java.time.LocalDateTime
@@ -19,44 +18,44 @@ class CourseTest extends Specification {
 
     def "should update course necessary data"() {
         given:
-        def course = prepareCourseData()
+        def initialCourse = prepareCourseData()
 
         when:
-        def result = course.updateCourseInformation()
+        def updatedCourse = initialCourse.updateCourseInformation()
 
         then:
-        result.getState() == CourseEvent.State.UPDATED
+        updatedCourse.getState() == CourseEvent.State.UPDATED
     }
 
-    def "should restore course object from snapshot"() {
+    def "should restore course domain object from snapshot"() {
         given:
-        def courseSnapshot = prepareSnapshotData()
+        def initialCourseSnapshot = prepareCourseSnapshotData()
 
         when:
-        def course = Course.restoreFromSnapshot(courseSnapshot)
+        def restoredCourse = Course.restoreFromSnapshot(initialCourseSnapshot)
 
         then:
-        course.class == Course.class
+        restoredCourse.class == Course.class
     }
 
-    def "should restore snapshot object from domain object"() {
+    def "should restore snapshot object from course domain object"() {
         given:
-        def course = prepareCourseData()
+        def initialCourse = prepareCourseData()
 
         when:
-        def courseSnapshot = Course.restoreFromCourse(course)
+        def restoredCourseSnapshot = Course.restoreFromCourse(initialCourse)
 
         then:
-        courseSnapshot.class == CourseSnapshot.class
+        restoredCourseSnapshot.class == CourseSnapshot.class
     }
 
-    def "should NOT let enroll course when course status is full"() {
+    def "should not let enroll course when course status is full"() {
         given:
-        def courseSnapshot = prepareSnapshotData()
-        def restored = Course.restoreFromSnapshot(courseSnapshot)
+        def initialCourseSnapshot = prepareCourseSnapshotData()
+        def restoredCourse = Course.restoreFromSnapshot(initialCourseSnapshot)
 
         when:
-        restored.validateCourseStatus()
+        restoredCourse.validateCourseStatus()
 
         then:
         def exception = thrown BusinessCourseException
@@ -77,7 +76,7 @@ class CourseTest extends Specification {
 
     }
 
-    private CourseSnapshot prepareSnapshotData() {
+    private CourseSnapshot prepareCourseSnapshotData() {
         return CourseSnapshot.builder()
                              .withCourseId(new CourseId(0L))
                              .withName(new Name("Groovy course"))
@@ -87,7 +86,6 @@ class CourseTest extends Specification {
                              .withParticipantLimit(new ParticipantLimit(200))
                              .withParticipantNumber(new ParticipantNumber(200))
                              .withStatus(Status.FULL)
-                             .withStudents([new StudentSnapshot()].toSet())
                              .build();
     }
 }

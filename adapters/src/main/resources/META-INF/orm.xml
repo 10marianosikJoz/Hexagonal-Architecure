@@ -10,60 +10,53 @@
         <table name="course"/>
         <attributes>
             <embedded-id name="courseId">
-                <attribute-override name="value">
+                <attribute-override name="courseId">
                     <column name="id"/>
                 </attribute-override>
             </embedded-id>
             <embedded name="name">
-                <attribute-override name="value">
+                <attribute-override name="name">
                     <column name="name"/>
                 </attribute-override>
             </embedded>
             <embedded name="description">
-                <attribute-override name="value">
+                <attribute-override name="description">
                     <column name="description"/>
                 </attribute-override>
             </embedded>
             <embedded name="startDate">
-                <attribute-override name="value">
+                <attribute-override name="startDate">
                     <column name="startDate"/>
                 </attribute-override>
             </embedded>
             <embedded name="endDate">
-                <attribute-override name="value">
+                <attribute-override name="endDate">
                     <column name="endDate"/>
                 </attribute-override>
             </embedded>
             <embedded name="participantLimit">
-                <attribute-override name="value">
+                <attribute-override name="participantLimit">
                     <column name="participantLimit"/>
                 </attribute-override>
             </embedded>
             <embedded name="participantNumber">
-                <attribute-override name="value">
+                <attribute-override name="participantNumber">
                     <column name="participantNumber"/>
                 </attribute-override>
             </embedded>
-            <basic name="status"/>
-            <property name="status" column="status">
-                <type name="org.hibernate.type.EnumType">
-                    <param name="enumClass">com.example.clean_architecture.course.Status</param>
-                    <param name="useNamed">true</param>
-                </type>
-            </property>
-            <embedded name="teacherSourceId">
-                <attribute-override name="teacherSourceId">
-                    <column name="teacherSourceId"/>
+            <embedded name="teacherId">
+                <attribute-override name="teacherId">
+                    <column name="teacherId"/>
                 </attribute-override>
             </embedded>
+            <basic name="status">
+                <column name="status"/>
+                <enumerated>STRING</enumerated>
+            </basic>
             <many-to-many name="students" fetch="EAGER" target-entity="com.example.clean_architecture.student.vo.StudentSnapshot">
                 <join-table name="student_course">
-                    <join-columns>
                     <join-column name="course_id"/>
-                        <inverse-join-columns>
-                            <join-column name="student_id"/>
-                        </inverse-join-columns>
-                    </join-columns>
+                    <inverse-join-column name="student_id"/>
                 </join-table>
             </many-to-many>
         </attributes>
@@ -142,21 +135,8 @@
                     <column name="degree"/>
                 </attribute-override>
             </embedded>
-            <embedded name="teacherSourceId">
-                <attribute-override name="value">
-                    <column name="teacherSourceId"/>
-                </attribute-override>
-            </embedded>
         </attributes>
     </entity>
-
-    <embeddable class="com.example.clean_architecture.teacher.vo.TeacherSourceId" access="FIELD">
-        <attributes>
-            <basic name="value">
-                <column nullable="true"/>
-            </basic>
-        </attributes>
-    </embeddable>
 
     <embeddable class="com.example.clean_architecture.teacher.vo.TeacherId" access="FIELD">
         <attributes>
@@ -210,12 +190,10 @@
                     <column name="email"/>
                 </attribute-override>
             </embedded>
-            <property name="status" column="status">
-                <type name="org.hibernate.type.EnumType">
-                    <param name="enumClass">com.example.clean_architecture.student.Status</param>
-                    <param name="useNamed">true</param>
-                </type>
-            </property>
+            <basic name="status">
+                <column name="status"/>
+                <enumerated>STRING</enumerated>
+            </basic>
             <many-to-many name="courses" fetch="EAGER" mapped-by="students" target-entity="com.example.clean_architecture.course.vo.CourseSnapshot"/>
         </attributes>
     </entity>

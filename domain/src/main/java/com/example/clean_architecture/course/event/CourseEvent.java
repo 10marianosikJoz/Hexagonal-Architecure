@@ -1,6 +1,10 @@
-package com.example.clean_architecture.course.vo;
+package com.example.clean_architecture.course.event;
 
 import com.example.clean_architecture.DomainEvent;
+import com.example.clean_architecture.course.vo.Description;
+import com.example.clean_architecture.course.vo.EndDate;
+import com.example.clean_architecture.course.vo.Name;
+import com.example.clean_architecture.course.vo.StartDate;
 
 import java.time.Instant;
 

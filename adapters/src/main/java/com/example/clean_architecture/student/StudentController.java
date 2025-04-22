@@ -34,6 +34,7 @@ class StudentController {
     @DeleteMapping("/{studentId}")
     ResponseEntity<CommandStudentDto> deleteStudentById(@PathVariable Long studentId) {
         studentFacade.deleteStudentById(studentId);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -46,12 +47,14 @@ class StudentController {
     ResponseEntity<?> addNewUser(@RequestBody CommandStudentDto student) {
         studentFacade.addNewStudent(student);
         var persisted = QueryStudentDto.restoreFromCommandDto(student);
-        return ResponseEntity.created(URI.create("/" + persisted.getStudentId())).body(persisted);
+
+        return ResponseEntity.created(URI.create("/" + persisted.studentId())).body(persisted);
     }
 
     @PutMapping("/{studentId}")
     ResponseEntity<CommandStudentDto> updateStudent(@PathVariable Long studentId, @RequestBody CommandStudentDto student) {
         studentFacade.updateStudent(studentId,student);
+
         return ResponseEntity.noContent().build();
     }
 }

@@ -5,9 +5,7 @@ import com.example.clean_architecture.student.dto.QueryStudentDto;
 import java.util.Optional;
 import java.util.Set;
 
-public interface StudentQueryRepository {
-
-    long count();
+interface StudentQueryRepository {
 
     <T> Set<T> findBy(Class<T> type);
 

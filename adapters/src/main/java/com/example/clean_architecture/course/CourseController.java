@@ -27,7 +27,7 @@ class CourseController {
 
     @GetMapping("/{courseId}")
     ResponseEntity<QueryCourseDto> getCourseById(@PathVariable Long courseId) {
-        return courseQueryRepository.findDtoByCourseIdValue(courseId)
+        return courseQueryRepository.findDtoByCourseId(courseId)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> BusinessCourseException.notFound("Course with id: " + courseId + " not found"));
     }
@@ -35,6 +35,7 @@ class CourseController {
     @DeleteMapping("/{courseId}")
     ResponseEntity<CommandCourseDto> deleteCourseById(@PathVariable Long courseId) {
         courseFacade.deleteCourseById(courseId);
+
         return ResponseEntity.noContent().build();
     }
 
@@ -47,12 +48,14 @@ class CourseController {
     ResponseEntity<?> addNewCourse(@RequestBody CommandCourseDto course) {
         courseFacade.addNewCourse(course);
         var persisted = QueryCourseDto.restoreFromCommandDto(course);
-        return ResponseEntity.created(URI.create("/" + persisted.getCourseId())).body(persisted);
+
+        return ResponseEntity.created(URI.create("/" + persisted.courseId())).body(persisted);
     }
 
     @PostMapping("/{courseId}/student/{studentId}")
     ResponseEntity<CommandCourseDto> courseEnrollment(@PathVariable Long courseId, @PathVariable Long studentId) {
         courseFacade.courseEnrollment(courseId, studentId);
+
         return ResponseEntity.ok().build();
     }
 

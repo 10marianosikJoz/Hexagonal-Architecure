@@ -1,5 +1,6 @@
-package com.example.clean_architecture.course.exception;
+package com.example.clean_architecture.course;
 
+import com.example.clean_architecture.course.exception.BusinessCourseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,10 +12,10 @@ class CourseExceptionHandler {
 
     @ExceptionHandler(com.example.clean_architecture.course.exception.BusinessCourseException.class)
     ResponseEntity<ErrorDetails> handleBusinessCourseException(BusinessCourseException e, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(e.getMessage(), request.getDescription(false));
+        var errorDetails = new ErrorDetails(e.getMessage(), request.getDescription(false));
 
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    record ErrorDetails(String message, String responseInformation) { }
+    record ErrorDetails(String message, String responseInformation) {}
 }

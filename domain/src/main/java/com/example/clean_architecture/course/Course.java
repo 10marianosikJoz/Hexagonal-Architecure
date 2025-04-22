@@ -2,7 +2,7 @@ package com.example.clean_architecture.course;
 
 import com.example.clean_architecture.course.exception.BusinessCourseException;
 import com.example.clean_architecture.course.vo.CourseCreator;
-import com.example.clean_architecture.course.vo.CourseEvent;
+import com.example.clean_architecture.course.event.CourseEvent;
 import com.example.clean_architecture.course.vo.CourseId;
 import com.example.clean_architecture.course.vo.CourseSnapshot;
 import com.example.clean_architecture.course.vo.Description;
@@ -12,46 +12,58 @@ import com.example.clean_architecture.course.vo.ParticipantLimit;
 import com.example.clean_architecture.course.vo.ParticipantNumber;
 import com.example.clean_architecture.course.vo.StartDate;
 import com.example.clean_architecture.student.vo.StudentSnapshot;
-import com.example.clean_architecture.teacher.vo.TeacherSourceId;
+import com.example.clean_architecture.teacher.vo.TeacherId;
 
-import java.util.HashSet;
 import java.util.Set;
 
-   class Course {
+class Course {
 
-      static Course restoreFromSnapshot(CourseSnapshot snapshot) {
-        var course =  Course.builder()
-                            .withCourseId(snapshot.getCourseId())
-                            .withName(snapshot.getName())
-                            .withDescription(snapshot.getDescription())
-                            .withStartDate(snapshot.getStartDate())
-                            .withEndDate(snapshot.getEndDate())
-                            .withParticipantLimit(snapshot.getParticipantLimit())
-                            .withParticipantNumber(snapshot.getParticipantNumber())
-                            .withStatus(snapshot.getStatus())
-                            .withTeacherSourceId(snapshot.getTeacherSourceId())
-                            .build();
-
-        course.getStudents().addAll(snapshot.getStudents());
-        return course;
+    static Course restoreFromSnapshot(CourseSnapshot snapshot) {
+        return Course.builder()
+                     .withCourseId(snapshot.getCourseId())
+                     .withName(snapshot.getName())
+                     .withDescription(snapshot.getDescription())
+                     .withStartDate(snapshot.getStartDate())
+                     .withEndDate(snapshot.getEndDate())
+                     .withParticipantLimit(snapshot.getParticipantLimit())
+                     .withParticipantNumber(snapshot.getParticipantNumber())
+                     .withStatus(snapshot.getStatus())
+                     .withTeacherId(snapshot.getTeacherId())
+                     .withStudents(snapshot.getStudents())
+                     .build();
     }
 
-      static CourseSnapshot restoreFromCourse(Course course) {
-          return CourseSnapshot.builder()
-                               .withCourseId(course.courseId)
-                               .withName(course.name)
-                               .withDescription(course.description)
-                               .withStartDate(course.startDate)
-                               .withEndDate(course.endDate)
-                               .withParticipantLimit(course.participantLimit)
-                               .withParticipantNumber(course.participantNumber)
-                               .withStatus(course.status)
-                               .withTeacherSourceId(course.teacherSourceId)
-                               .withStudents(course.students)
-                               .build();
+    static Course restoreFromSnapshot(CourseSnapshot snapshot, ParticipantNumber participantNumber) {
+        return Course.builder()
+                .withCourseId(snapshot.getCourseId())
+                .withName(snapshot.getName())
+                .withDescription(snapshot.getDescription())
+                .withStartDate(snapshot.getStartDate())
+                .withEndDate(snapshot.getEndDate())
+                .withParticipantLimit(snapshot.getParticipantLimit())
+                .withParticipantNumber(participantNumber)
+                .withStatus(snapshot.getStatus())
+                .withTeacherId(snapshot.getTeacherId())
+                .withStudents(snapshot.getStudents())
+                .build();
     }
 
-    static Course createFrom(final CourseCreator courseCreator) {
+    static CourseSnapshot restoreFromCourse(Course course) {
+        return CourseSnapshot.builder()
+                             .withCourseId(course.courseId)
+                             .withName(course.name)
+                             .withDescription(course.description)
+                             .withStartDate(course.startDate)
+                             .withEndDate(course.endDate)
+                             .withParticipantLimit(course.participantLimit)
+                             .withParticipantNumber(course.participantNumber)
+                             .withStatus(course.status)
+                             .withTeacherId(course.teacherId)
+                             .withStudents(course.students)
+                             .build();
+    }
+
+    static Course createFrom(CourseCreator courseCreator) {
         return Course.builder()
                      .withName(courseCreator.name())
                      .withDescription(courseCreator.description())
@@ -73,10 +85,10 @@ import java.util.Set;
        private final StartDate startDate;
        private final EndDate endDate;
        private final ParticipantLimit participantLimit;
-       private final ParticipantNumber participantNumber;
+       private ParticipantNumber participantNumber;
        private Status status;
-       private final TeacherSourceId teacherSourceId;
-       private final Set<StudentSnapshot> students = new HashSet<>();
+       private final TeacherId teacherId;
+       private final Set<StudentSnapshot> students;
 
      Course(final CourseId courseId,
             final Name name,
@@ -86,7 +98,8 @@ import java.util.Set;
             final ParticipantLimit participantsLimit,
             final ParticipantNumber participantsNumber,
             final Status status,
-            final TeacherSourceId teacherSourceId) {
+            final TeacherId teacherId,
+            final Set<StudentSnapshot> students) {
 
         this.courseId = courseId;
         this.name = name;
@@ -96,27 +109,24 @@ import java.util.Set;
         this.participantLimit = participantsLimit;
         this.participantNumber = participantsNumber;
         this.status = status;
-        this.teacherSourceId = teacherSourceId;
-    }
+        this.teacherId = teacherId;
+        this.students = students;
+     }
 
     CourseEvent updateCourseInformation() {
-        return new CourseEvent(courseId.getValue(),
-                               new CourseEvent.Data(name,
-                                                    description,
-                                                    startDate,
-                                                    endDate),
-                               CourseEvent.State.UPDATED);
+        return new CourseEvent(courseId.courseId(),
+                               new CourseEvent.Data(name, description, startDate, endDate), CourseEvent.State.UPDATED);
     }
 
     CourseEvent changeStatus() {
-        if (participantNumber.getValue().equals(participantLimit.getValue())) {
+        if (participantNumber.participantNumber().equals(participantLimit.participantLimit())) {
             this.status = Status.FULL;
         }
 
-        return new CourseEvent(courseId.getValue(), null, CourseEvent.State.UPDATED);
+        return new CourseEvent(courseId.courseId(), new CourseEvent.Data(name, description, startDate, endDate), CourseEvent.State.UPDATED);
       }
 
-    Set<StudentSnapshot> getStudents() {
+    Set<StudentSnapshot> students() {
         return students;
     }
 
@@ -136,14 +146,13 @@ import java.util.Set;
                              .withParticipantLimit(participantLimit)
                              .withParticipantNumber(participantNumber)
                              .withStatus(status)
-                             .withTeacherSourceId(teacherSourceId)
                              .withStudents(students)
                              .build();
     }
 
      void addStudent(StudentSnapshot student) {
          students.add(student);
-         student.getCourses().add(Course.restoreFromCourse(this));
+//         student.courses().add(Course.restoreFromCourse(this));
      }
 
      public static class CourseBuilder {
@@ -156,7 +165,8 @@ import java.util.Set;
          private ParticipantLimit participantLimit;
          private ParticipantNumber participantNumber;
          private Status status;
-         private TeacherSourceId teacherSourceId;
+         private TeacherId teacherId;
+         private Set<StudentSnapshot> students;
 
          private CourseBuilder() {}
 
@@ -200,8 +210,13 @@ import java.util.Set;
              return this;
          }
 
-         public CourseBuilder withTeacherSourceId(TeacherSourceId teacherSourceId) {
-             this.teacherSourceId = teacherSourceId;
+         public CourseBuilder withTeacherId(TeacherId teacherId) {
+             this.teacherId = teacherId;
+             return this;
+         }
+
+         public CourseBuilder withStudents(Set<StudentSnapshot> students) {
+             this.students = students;
              return this;
          }
 
@@ -214,7 +229,8 @@ import java.util.Set;
                                participantLimit,
                                participantNumber,
                                status,
-                               teacherSourceId);
+                               teacherId,
+                               students);
          }
      }
   }

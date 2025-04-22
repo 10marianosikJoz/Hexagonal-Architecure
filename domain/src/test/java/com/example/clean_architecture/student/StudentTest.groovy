@@ -1,28 +1,38 @@
 package com.example.clean_architecture.student
 
+import com.example.clean_architecture.course.Status
+import com.example.clean_architecture.course.vo.CourseId
 import com.example.clean_architecture.course.vo.CourseSnapshot
+import com.example.clean_architecture.course.vo.Description
+import com.example.clean_architecture.course.vo.EndDate
+import com.example.clean_architecture.course.vo.Name
+import com.example.clean_architecture.course.vo.ParticipantLimit
+import com.example.clean_architecture.course.vo.ParticipantNumber
+import com.example.clean_architecture.course.vo.StartDate
 import com.example.clean_architecture.student.vo.Email
 import com.example.clean_architecture.student.vo.Firstname
 import com.example.clean_architecture.student.vo.Lastname
-import com.example.clean_architecture.student.vo.StudentEvent
+import com.example.clean_architecture.student.event.StudentEvent
 import com.example.clean_architecture.student.vo.StudentId
 import com.example.clean_architecture.student.vo.StudentSnapshot
 import spock.lang.Specification
 
+import java.time.LocalDateTime
+
 class StudentTest extends Specification {
 
-    def "should restore student object from snapshot"() {
+    def "should restore student domain object from snapshot"() {
         given:
-        def studentSnapshot = prepareSnapshotData()
+        def initialStudentSnapshot = prepareSnapshotData()
 
         when:
-        def student = Student.restoreFromSnapshot(studentSnapshot)
+        def restoredStudent = Student.restoreFromSnapshot(initialStudentSnapshot)
 
         then:
-        student.class == Student.class
+        restoredStudent.class == Student.class
     }
 
-    def "should restore snapshot from domain object"() {
+    def "should restore snapshot from student domain object"() {
         given:
         def student = prepareStudentData()
 
@@ -42,19 +52,22 @@ class StudentTest extends Specification {
         def status = StudentSnapshot.Status.ACTIVE
 
         when:
-        def result = student.updateDetails(firstName, lastName, email, status)
+        def updatedStudent = student.updateDetails(firstName, lastName, email, status)
 
         then:
-        result.getState() == StudentEvent.State.UPDATED
+        updatedStudent.getState() == StudentEvent.State.UPDATED
     }
 
     private StudentSnapshot prepareSnapshotData() {
+        def set = new HashSet<>()
+        set.add(prepareCourseSnapshotData());
+
         return StudentSnapshot.builder()
                               .withStudentId(new StudentId(0L))
                               .withFirstname(new Firstname("John"))
                               .withLastname(new Lastname("Murphy"))
                               .withEmail(new Email("murphy@gmail.com"))
-                              .withCourses([new CourseSnapshot()].toSet())
+                              .withCourses(set)
                               .withStatus(StudentSnapshot.Status.ACTIVE)
                               .build()
     }
@@ -65,8 +78,22 @@ class StudentTest extends Specification {
                       .withFirstname(new Firstname("John"))
                       .withLastname(new Lastname("Murphy"))
                       .withEmail(new Email("murphy@gmail.com"))
+                      .withCourses(new HashSet<>())
                       .withStatus(StudentSnapshot.Status.ACTIVE)
                       .build()
 
+    }
+
+    private CourseSnapshot prepareCourseSnapshotData() {
+        return CourseSnapshot.builder()
+                             .withCourseId(new CourseId(1L))
+                             .withName(new Name("Groovy course"))
+                             .withDescription(new Description("Complex course for programmers"))
+                             .withStartDate(new StartDate(LocalDateTime.now()))
+                             .withEndDate(new EndDate(LocalDateTime.now()))
+                             .withParticipantLimit(new ParticipantLimit(200))
+                             .withParticipantNumber(new ParticipantNumber(200))
+                             .withStatus(Status.FULL)
+                             .build();
     }
 }

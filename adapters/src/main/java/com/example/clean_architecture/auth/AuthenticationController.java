@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
-    private final TokenService tokenService;
+    private final TokenFacade tokenFacade;
 
     AuthenticationController(final AuthenticationManager authenticationManager,
-                             final TokenService tokenService) {
+                             final TokenFacade tokenFacade) {
 
         this.authenticationManager = authenticationManager;
-        this.tokenService = tokenService;
+        this.tokenFacade = tokenFacade;
     }
 
     @PostMapping
@@ -29,6 +29,6 @@ class AuthenticationController {
                                                                                               authRequest.password()));
 
         var user = (UserDetails) auth.getPrincipal();
-        return ResponseEntity.ok(new AuthenticationResponseDto(tokenService.generateNewToken(user)));
+        return ResponseEntity.ok(new AuthenticationResponseDto(tokenFacade.generateNewToken(user)));
     }
 }

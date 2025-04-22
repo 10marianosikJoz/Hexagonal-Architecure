@@ -4,9 +4,9 @@ import java.util.Optional;
 
 interface TeacherRepository {
 
-    Optional<Teacher> findByTeacherIdValue(Long teacherId);
+    Optional<Teacher> findByTeacherId(Long teacherId);
 
-    void deleteByTeacherIdValue(Long teacherId);
+    void deleteByTeacherId(Long teacherId);
 
     Teacher save(Teacher teacher);
 }

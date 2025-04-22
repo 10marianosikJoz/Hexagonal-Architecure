@@ -2,23 +2,11 @@ package com.example.clean_architecture.teacher.vo;
 
 import com.example.clean_architecture.teacher.exception.BusinessTeacherException;
 
-import java.io.Serializable;
+public record Lastname(String value) {
 
-public class Lastname implements Serializable {
-
-    private String value;
-
-    protected Lastname() {}
-
-    public Lastname(String value) {
-        if (value == null || value.isEmpty() || value.isBlank()) {
+    public Lastname {
+        if (value == null || value.isBlank()) {
             throw new BusinessTeacherException("LastName is not provided");
         }
-
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
     }
 }

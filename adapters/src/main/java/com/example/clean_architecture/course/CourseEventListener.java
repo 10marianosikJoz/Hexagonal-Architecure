@@ -1,20 +1,18 @@
 package com.example.clean_architecture.course;
 
-import com.example.clean_architecture.student.vo.StudentEvent;
+import com.example.clean_architecture.student.event.StudentEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
 
-@Service
-public class CourseEventListener {
+class CourseEventListener {
 
     private final CourseFacade courseFacade;
 
-    public CourseEventListener(final CourseFacade courseFacade) {
+    CourseEventListener(final CourseFacade courseFacade) {
         this.courseFacade = courseFacade;
     }
 
     @EventListener
-    public void on(StudentEvent event) {
+    void on(StudentEvent event) {
         courseFacade.handleEvent(event);
     }
 }

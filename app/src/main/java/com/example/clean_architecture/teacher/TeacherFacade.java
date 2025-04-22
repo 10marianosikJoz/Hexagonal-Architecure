@@ -2,10 +2,9 @@ package com.example.clean_architecture.teacher;
 
 import com.example.clean_architecture.teacher.dto.CommandTeacherDto;
 import com.example.clean_architecture.teacher.exception.BusinessTeacherException;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
-
- class TeacherFacade {
+class TeacherFacade {
 
     private final TeacherRepository teacherRepository;
     private final TeacherFactory teacherFactory;
@@ -18,29 +17,31 @@ import javax.transaction.Transactional;
     }
 
     @Transactional
-    public void deleteTeacherById(Long teacherId) {
-        teacherRepository.findByTeacherIdValue(teacherId)
-                         .ifPresent(teacher -> teacherRepository.deleteByTeacherIdValue(teacherId));
+    void deleteTeacherById(Long teacherId) {
+        teacherRepository.findByTeacherId(teacherId)
+                         .ifPresent(teacher -> teacherRepository.deleteByTeacherId(teacherId));
     }
 
+    @Transactional
     CommandTeacherDto addNewTeacher(CommandTeacherDto teacher) {
         return toTeacherDto(teacherRepository.save(
-                teacherRepository.findByTeacherIdValue(teacher.getTeacherId().getValue())
+                teacherRepository.findByTeacherId(teacher.teacherId().teacherId())
                         .map(teacherFromDB -> {
-                            teacherFromDB.updateTeacherData(teacher.getFirstName(),
-                                                            teacher.getLastName(),
-                                                            teacher.getDegree());
+                            teacherFromDB.updateTeacherData(teacher.firstName(),
+                                                            teacher.lastName(),
+                                                            teacher.degree());
                             return teacherFromDB;
                         }).orElseGet(() -> teacherFactory.from(teacher))
         ));
     }
 
+    @Transactional
      CommandTeacherDto updateTeacher(Long teacherId, CommandTeacherDto teacher) {
-        return teacherRepository.findByTeacherIdValue(teacherId)
+        return teacherRepository.findByTeacherId(teacherId)
                 .map(teacherFromDB -> {
-                   teacherFromDB.updateTeacherData(teacher.getFirstName(),
-                                                   teacher.getLastName(),
-                                                   teacher.getDegree());
+                   teacherFromDB.updateTeacherData(teacher.firstName(),
+                                                   teacher.lastName(),
+                                                   teacher.degree());
 
                     var persisted = teacherRepository.save(teacherFromDB);
                     return toTeacherDto(persisted);

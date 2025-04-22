@@ -1,6 +1,5 @@
 package com.example.clean_architecture.student;
 
-import com.example.clean_architecture.DomainEventPublisher;
 import com.example.clean_architecture.course.Status;
 import com.example.clean_architecture.course.vo.*;
 import com.example.clean_architecture.student.vo.Email;
@@ -8,102 +7,96 @@ import com.example.clean_architecture.student.vo.Firstname;
 import com.example.clean_architecture.student.vo.Lastname;
 import com.example.clean_architecture.student.vo.StudentId;
 import com.example.clean_architecture.student.vo.StudentSnapshot;
-import com.example.clean_architecture.teacher.vo.TeacherSourceId;
+import com.example.clean_architecture.teacher.vo.TeacherId;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
-@ExtendWith(MockitoExtension.class)
 class StudentFacadeTest {
 
-    @Mock
-    StudentRepository studentRepository;
+    private final InMemoryStudentRepository inMemoryStudentRepository = new InMemoryStudentRepository();
+    private final InMemoryStudentQueryRepository inMemoryStudentQueryRepository = new InMemoryStudentQueryRepository();
+    private final StudentEventPublisherTest studentEventPublisherTest = new StudentEventPublisherTest();
+    private final StudentFacade studentFacade = new StudentFacade(inMemoryStudentRepository, inMemoryStudentQueryRepository, new StudentFactory(), studentEventPublisherTest);
 
-    @Mock
-    StudentFactory studentFactory;
-
-    @Mock
-    DomainEventPublisher domainEventPublisher;
-
-    @InjectMocks
-    StudentFacade studentFacade;
+    @BeforeEach
+    void setUp() {
+        inMemoryStudentRepository.truncate();
+        inMemoryStudentQueryRepository.truncate();
+    }
 
     @Test
     void shouldObtainListOfStudentsWithGivenEmails() {
+        // given
         var emails = prepareEmailsData();
         var students = prepareStudentsData();
-        given(studentRepository.findAllByEmailIn(emails)).willReturn(students);
+        inMemoryStudentRepository.save(students.get(0));
+        inMemoryStudentRepository.save(students.get(1));
 
+        // when
         var studentsByEmails = studentFacade.getStudentByEmails(emails).size();
 
-        assertThat(studentsByEmails).isEqualTo(2);
+        // then
+        assertThat(studentsByEmails).isEqualTo(students.size());
     }
 
     @Test
     void shouldSaveStudentToDatabase() {
-        var student = getStudentData();
-        var commandStudentDto = StudentFacade.toStudentDto(student);
-        doNothing().when(domainEventPublisher).publish(any());
-        given(studentFactory.from(commandStudentDto)).willReturn(student);
-        given(studentRepository.save(student)).willReturn(student);
+        // given
+        var student = prepareSingleStudentData();
+        var commandStudentDto = studentFacade.toStudentDto(student);
 
+        // when
         var persisted = studentFacade.addNewStudent(commandStudentDto);
 
-        assertThat(persisted.getEmail().getValue()).isEqualTo("john@gmail.com");
+        // then
+        assertThat(inMemoryStudentRepository.findById(persisted.studentId().value())).isPresent();
+        assertThat(studentEventPublisherTest.getEvents().size()).isEqualTo(1);
     }
 
     @Test
     void shouldUpdateGivenStudent() {
-        var student = getStudentData();
-        var commandStudentDto = StudentFacade.toStudentDto(student);
-        var studentId = student.getSnapshot().getStudentId().getValue();
-        given(studentRepository.findById(studentId)).willReturn(Optional.of(student));
-        given(studentRepository.save(student)).willReturn(student);
+        // given
+        var student = prepareSingleStudentData();
+        var commandStudentDto = studentFacade.toStudentDto(student);
+        var studentId = student.getSnapshot().getStudentId().value();
+        inMemoryStudentRepository.save(student);
 
+        // when
         var updated = studentFacade.updateStudent(studentId, commandStudentDto);
 
-        assertThat(updated.getEmail().getValue()).isEqualTo("john@gmail.com");
+        // then
+        assertThat(inMemoryStudentRepository.findById(updated.studentId().value()).get().getSnapshot().getFirstName().value()).isEqualTo("John");
     }
 
     @Test
     void shouldDeleteStudentWithGivenId() {
-        var student = getStudentData();
-        given(studentRepository.findById(1L)).willReturn(Optional.of(student));
-        doNothing().when(domainEventPublisher).publish(any());
-        doNothing().when(studentRepository).deleteById(1L);
+        // given
+        var student = prepareSingleStudentData();
+        inMemoryStudentRepository.save(student);
 
+        // when
         studentFacade.deleteStudentById(1L);
 
-        verify(studentRepository, times(1)).deleteById(1L);
+        // then
+        assertThat(inMemoryStudentRepository.findById(student.getSnapshot().getStudentId().value())).isEmpty();
     }
 
     @Test
     void shouldDecreaseCourseParticipantNumberWhenDeleteGivenStudent() {
-        var student = getStudentData();
-        var courses = Collections.singletonList(mapToList(student.getCourses()).get(0));
-        given(studentRepository.findById(1L)).willReturn(Optional.of(student));
-        doNothing().when(domainEventPublisher).publish(any());
-        doNothing().when(studentRepository).deleteById(1L);
+        // given
+        var student = prepareSingleStudentData();
+        var courses = Collections.singletonList(new ArrayList<>(student.getCourses()).getFirst());
 
+        // when
         studentFacade.deleteStudentById(1L);
 
-        assertThat(courses.get(0).getParticipantNumber().getValue()).isEqualTo(2L);
+        // then
+        assertThat(courses.getFirst().getParticipantNumber().participantNumber()).isEqualTo(2L);
     }
 
     private List<String> prepareEmailsData() {
@@ -118,6 +111,7 @@ class StudentFacadeTest {
                         .withLastname(new Lastname("Murphy"))
                         .withEmail(new Email("john@gmail.com"))
                         .withStatus(StudentSnapshot.Status.ACTIVE)
+                        .withCourses(new HashSet<>())
                         .build(),
                 Student.builder()
                         .withStudentId(new StudentId(2L))
@@ -125,16 +119,18 @@ class StudentFacadeTest {
                         .withLastname(new Lastname("Mackenzie"))
                         .withEmail(new Email("elizabeth@gmail.com"))
                         .withStatus(StudentSnapshot.Status.ACTIVE)
+                        .withCourses(new HashSet<>())
                         .build());
     }
 
-    private Student getStudentData() {
+    private Student prepareSingleStudentData() {
         var student = Student.builder()
                              .withStudentId(new StudentId(1L))
                              .withFirstname(new Firstname("John"))
                              .withLastname(new Lastname("Murphy"))
                              .withEmail(new Email("john@gmail.com"))
                              .withStatus(StudentSnapshot.Status.ACTIVE)
+                             .withCourses(new HashSet<>())
                              .build();
 
         var course = CourseSnapshot.builder()
@@ -146,14 +142,10 @@ class StudentFacadeTest {
                                    .withParticipantLimit(new ParticipantLimit(2L))
                                    .withParticipantNumber(new ParticipantNumber(2L))
                                    .withStatus(Status.ACTIVE)
-                                   .withTeacherSourceId(new TeacherSourceId("1"))
+                                   .withTeacherId(new TeacherId(1L))
                                    .build();
 
         student.getCourses().add(course);
         return student;
-    }
-
-    private List<CourseSnapshot> mapToList(Set<CourseSnapshot> courses) {
-        return new ArrayList<>(courses);
     }
 }

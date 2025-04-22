@@ -1,60 +1,60 @@
 package com.example.clean_architecture.auth;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 
-import java.util.Set;
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
-class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+class SecurityConfiguration {
 
-    private final TokenService tokenService;
+    private final TokenFacade tokenFacade;
 
-    SecurityConfiguration(final TokenService tokenService) {
-        this.tokenService = tokenService;
-    }
-
-    @Autowired
-    void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
-    }
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-                   .authorizeRequests()
-                   .antMatchers("/authenticate")
-                   .permitAll()
-                   .anyRequest()
-                   .authenticated()
-                   .and()
-                   .addFilterBefore(new AuthenticationFilter(userDetailsService(), tokenService), AnonymousAuthenticationFilter.class)
-                   .sessionManagement()
-                   .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    SecurityConfiguration(final TokenFacade tokenFacade) {
+        this.tokenFacade = tokenFacade;
     }
 
     @Bean
-    @Override
-    protected UserDetailsService userDetailsService() {
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/authenticate").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(new AuthenticationFilter(userDetailsService(), tokenFacade), AnonymousAuthenticationFilter.class)
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
+
+        return http.build();
+    }
+
+    @Bean
+    UserDetailsService userDetailsService() {
         return new InMemoryUserDetailsManager(
-                new User("user",
-                        passwordEncoder().encode("user"),
-                        Set.of()),
-                new User("admin",
-                        passwordEncoder().encode("admin"),
-                        Set.of(new SimpleGrantedAuthority("ADMIN")))
+                User.builder()
+                        .username("user")
+                        .password(passwordEncoder().encode("user"))
+                        .roles()
+                        .build(),
+                User.builder()
+                        .username("admin")
+                        .password(passwordEncoder().encode("admin"))
+                        .authorities("ADMIN")
+                        .build()
         );
     }
 
@@ -64,8 +64,7 @@ class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 }

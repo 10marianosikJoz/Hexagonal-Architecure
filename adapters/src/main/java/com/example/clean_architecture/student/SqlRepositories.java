@@ -26,10 +26,11 @@ interface SqlStudentRepository extends Repository<StudentSnapshot, StudentId> {
 }
 
 @org.springframework.stereotype.Repository
-class SqlStudentImpl implements StudentRepository {
+class StudentJpaRepository implements StudentRepository {
+
     private final SqlStudentRepository studentRepository;
 
-    SqlStudentImpl(SqlStudentRepository studentRepository) {
+    StudentJpaRepository(SqlStudentRepository studentRepository) {
         this.studentRepository = studentRepository;
     }
 
@@ -61,7 +62,7 @@ class SqlStudentImpl implements StudentRepository {
         Set<String> email = new HashSet<>(emails);
         return findAll().stream()
                         .map(Student::restoreFromStudent)
-                        .filter(it -> email.contains(it.getEmail().getValue()))
+                        .filter(it -> email.contains(it.getEmail().value()))
                         .map(Student::restoreFromSnapshot)
                         .collect(Collectors.toList());
     }

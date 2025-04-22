@@ -14,15 +14,7 @@ import org.springframework.context.annotation.Configuration;
         return secret;
     }
 
-    void setSecret(String secret) {
-        this.secret = secret;
-    }
-
     long getValidity() {
         return validity;
-    }
-
-    void setValidity(long validity) {
-        this.validity = validity;
     }
 }

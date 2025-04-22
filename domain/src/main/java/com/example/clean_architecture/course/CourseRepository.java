@@ -3,7 +3,6 @@ package com.example.clean_architecture.course;
 import java.util.List;
 import java.util.Optional;
 
-
 interface CourseRepository {
 
     Optional<Course> findById(Long courseId);

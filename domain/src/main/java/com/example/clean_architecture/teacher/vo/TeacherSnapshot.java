@@ -1,30 +1,24 @@
 package com.example.clean_architecture.teacher.vo;
 
 public class TeacherSnapshot {
-
-    public static TeacherSnapshotBuilder builder() {
-        return new TeacherSnapshotBuilder();
-    }
-
+    private TeacherId teacherId;
     private Firstname firstName;
     private Lastname lastName;
     private Degree degree;
-    private TeacherId teacherId;
-    private TeacherSourceId teacherSourceId;
 
-    protected TeacherSnapshot() {}
+    private TeacherSnapshot(final TeacherId teacherId,
+                            final Firstname firstName,
+                            final Lastname lastName,
+                            final Degree degree) {
 
-    public TeacherSnapshot(final Firstname firstName,
-                           final Lastname lastName,
-                           final Degree degree,
-                           final TeacherSourceId teacherSourceId,
-                           final TeacherId teacherId) {
-
+        this.teacherId = teacherId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.degree = degree;
-        this.teacherSourceId = teacherSourceId;
-        this.teacherId = teacherId;
+    }
+
+    public static TeacherSnapshotBuilder builder() {
+        return new TeacherSnapshotBuilder();
     }
 
     public TeacherId getTeacherId() {
@@ -43,17 +37,19 @@ public class TeacherSnapshot {
         return degree;
     }
 
-    public TeacherSourceId getTeacherSourceId() {
-        return teacherSourceId;
-    }
-
     public static class TeacherSnapshotBuilder {
 
+        private TeacherId teacherId;
         private Firstname firstName;
         private Lastname lastName;
         private Degree degree;
-        private TeacherId teacherId;
-        private TeacherSourceId teacherSourceId;
+
+        private TeacherSnapshotBuilder() {}
+
+        public TeacherSnapshotBuilder withTeacherId(TeacherId teacherId) {
+            this.teacherId = teacherId;
+            return this;
+        }
 
         public TeacherSnapshotBuilder withFirstname(Firstname firstName) {
             this.firstName = firstName;
@@ -70,22 +66,11 @@ public class TeacherSnapshot {
             return this;
         }
 
-        public TeacherSnapshotBuilder withTeacherId(TeacherId teacherId) {
-            this.teacherId = teacherId;
-            return this;
-        }
-
-        public TeacherSnapshotBuilder withTeacherSourceId(TeacherSourceId teacherSourceId) {
-            this.teacherSourceId = teacherSourceId;
-            return this;
-        }
-
         public TeacherSnapshot build() {
-            return new TeacherSnapshot(firstName,
+            return new TeacherSnapshot(teacherId,
+                                       firstName,
                                        lastName,
-                                       degree,
-                                       teacherSourceId,
-                                       teacherId);
+                                       degree);
         }
     }
 }
