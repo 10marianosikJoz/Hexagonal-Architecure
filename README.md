@@ -1,3 +1,11 @@
+# Technology stack
+* Java 23
+* Spring Boot 3.4.4
+* Hibernate
+* H2
+* Maven
+* AssertJ
+
 # Code Structure
 
 This project follows the Hexagonal Architecture pattern, which separates the application's business logic from its infrastructure.
