@@ -2,9 +2,11 @@ package com.example.clean_architecture.student.vo;
 
 import com.example.clean_architecture.course.vo.CourseSnapshot;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class StudentSnapshot {
+
     private StudentId studentId;
     private Firstname firstName;
     private Lastname lastName;
@@ -53,6 +55,18 @@ public class StudentSnapshot {
 
     public Set<CourseSnapshot> getCourses() {
         return courses;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        var that = (StudentSnapshot) o;
+        return Objects.equals(studentId, that.studentId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(studentId);
     }
 
     public enum Status {

@@ -5,6 +5,7 @@ import com.example.clean_architecture.student.vo.StudentSnapshot;
 import com.example.clean_architecture.teacher.vo.TeacherId;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 public class CourseSnapshot {
@@ -13,16 +14,16 @@ public class CourseSnapshot {
         return new CourseSnapshotBuilder();
     }
 
-    private final CourseId courseId;
-    private final Name name;
-    private final Description description;
-    private final StartDate startDate;
-    private final EndDate endDate;
-    private final ParticipantLimit participantLimit;
-    private final ParticipantNumber participantNumber;
+    private CourseId courseId;
+    private Name name;
+    private Description description;
+    private StartDate startDate;
+    private EndDate endDate;
+    private ParticipantLimit participantLimit;
+    private ParticipantNumber participantNumber;
     private Status status;
-    private final TeacherId teacherId;
-    private final Set<StudentSnapshot> students;
+    private TeacherId teacherId;
+    private Set<StudentSnapshot> students;
 
     public CourseSnapshot(final CourseId courseId,
                           final Name name,
@@ -89,6 +90,18 @@ public class CourseSnapshot {
 
     public void changeToActiveStatus() {
         this.status = Status.ACTIVE;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        var that = (CourseSnapshot) o;
+        return Objects.equals(courseId, that.courseId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(courseId);
     }
 
     public static class CourseSnapshotBuilder {

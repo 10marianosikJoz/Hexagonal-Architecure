@@ -1,6 +1,9 @@
 package com.example.clean_architecture.teacher.vo;
 
+import java.util.Objects;
+
 public class TeacherSnapshot {
+
     private TeacherId teacherId;
     private Firstname firstName;
     private Lastname lastName;
@@ -35,6 +38,18 @@ public class TeacherSnapshot {
 
     public Degree getDegree() {
         return degree;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        var that = (TeacherSnapshot) o;
+        return Objects.equals(teacherId, that.teacherId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(teacherId);
     }
 
     public static class TeacherSnapshotBuilder {
